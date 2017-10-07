@@ -1,0 +1,172 @@
+<h1>Projects#index</h1>
+<p>Find me in app/views/projects/index.html.erb</p>
+
+<%= select_tag 'sort_method', options_for_select(@order_hash.map{ |k,v| [v["name"],k] },@selected_order), {onchange: "testMethod(value)", class: 'form-control', style: 'float:right; width:20%; margin-right:2%'}  %>
+
+<div id="projects_main">
+	<ul class="col-md-12 tbl_row">
+		<li class="col-md-3"> Title</li>
+		<li class="col-md-2"> Date Added</li>
+		<li class="col-md-2"> Category</li>
+		<li class="col-md-3"> User</li>
+		<li class="col-md-2"> Desc</li>
+	</ul>
+	<div id="content">
+
+	<% @result.each do |proj| %>
+		<ul class="col-md-12 tbl_row">
+			<li class="col-md-3 tbl_row"> <%= "#{proj.title.presence || '-'}" %> </li>
+			<li class="col-md-2 tbl_row"> <%= "#{proj.date_added.strftime('%b %e %Y, %I:%M:%S %p')}" %> </li>
+			<li class="col-md-2 tbl_row"> <%= "#{proj.cname.presence || '-'}" %> </li>
+			<li class="col-md-3 tbl_row"> <%= "#{proj.uname}" %> </li>
+			<li class="col-md-2 tbl_row"> <%= "#{proj.description.presence || '-'}" %> </li>
+		</ul>
+	<% end %>
+
+	</div>
+	<div id="page_navigation"></div>
+	<input type="hidden" name="current_page" id="current_page">
+	<input type="hidden" name="show_per_page" id="show_per_page">
+</div>
+
+<style type="text/css">
+	#projects_main{
+		margin: 2%;
+	}
+	ul.tbl_row{
+		padding-left: 0;
+		padding-right: 0;
+    	list-style: none;
+    	float: left;
+    	background-color: #f5f5f5;
+    	margin-bottom: 1%;
+    	margin-left: 2%
+    	width: 96%;
+    	border: 1px solid #FFFFFF;
+    	font-size: 16px;
+	}
+	ul.tbl_row>li{
+		float: left;
+		border-right: 1px solid #FFFFFF;
+	}
+
+	ul.pagination{
+		display:flex;  
+	  	list-style:none;
+	  	float: right;
+	}
+	.pagination li{
+		display: inline;
+		margin-right:5px;
+	}
+</style>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		customPagination();
+});
+
+function customPagination(){
+  
+  // Items per Page
+  var show_per_page = 2; 
+  
+  // Total Length
+  var number_of_items = $('#content').children().size();
+  
+  // No. of pages 
+  var number_of_pages = Math.ceil(number_of_items/show_per_page);
+
+  //set the value of our hidden input fields
+  $('#current_page').val(0);
+  $('#show_per_page').val(show_per_page);
+
+  var navigation_html = '<ul class="pagination">';
+
+  navigation_html += '<li class="previous_link">';
+  navigation_html += '<a href="javascript:previous();">&larr; Previous</a>';
+  navigation_html += '</li>';
+  var current_link = 0;
+  while(number_of_pages > current_link){
+    navigation_html += '<li class="page_link" id="id' + current_link +'">';
+    navigation_html += '<a href="javascript:go_to_page(' + current_link +')" longdesc="' + current_link +'">'+ (current_link + 1) +'</a>';
+    current_link++;
+    navigation_html += '</li>';
+  }
+  navigation_html += '<li>';
+  navigation_html += '<a class="next_link" href="javascript:next();">Next &rarr;</a>';
+  navigation_html += '</li>';
+  navigation_html += '</ul>';
+
+  $('#page_navigation').html(navigation_html);
+
+  //add active class to the first page link
+  $('#page_navigation .page_link:first').addClass('active');
+
+  //hide all the elements inside content div
+  $('#content').children().css('display', 'none');
+
+  //and show the first n (show_per_page) elements
+  $('#content').children().slice(0, show_per_page).css('display', 'block');
+}
+
+function previous(){
+
+  new_page = parseInt($('#current_page').val()) - 1;
+  //if there is an item before the current active link run the function
+  if($('.active').prev('.page_link').length==true){
+    go_to_page(new_page);
+  }
+
+}
+
+function next(){
+  new_page = parseInt($('#current_page').val()) + 1;
+  //if there is an item after the current active link run the function
+  if($('.active').next('.page_link').length==true){
+    go_to_page(new_page);
+  }
+
+}
+
+function go_to_page(page_num){
+  // Items per Page to show
+  var show_per_page = parseInt($('#show_per_page').val());
+
+  //Get first element index to show
+  start_from = page_num * show_per_page;
+
+  //Get the last element index
+  end_on = start_from + show_per_page;
+
+  activate_id = page_num;
+
+  var get_box = document.getElementById("id"+page_num);
+  //hide all children elements of content div, get specific items and show them
+  $('#content').children().css('display', 'none').slice(start_from, end_on).css('display', 'block');
+
+  $("#page_navigation").find('li.active').removeClass("active");
+  $(get_box).addClass("active");
+
+
+  //update the current page input field
+  $('#current_page').val(page_num);
+}
+
+function testMethod(id) {
+	console.log(id);
+	 $.ajax({
+	 	url: "/projects?sort_method="+id, 
+	 	success: function(response){
+	        console.log(response)
+	        var success =  $($.parseHTML(response)).filter("#projects_main")[0]; 
+			console.log(success); // div#success
+	        $("#projects_main").html(success);
+	        customPagination();
+	    },
+		error: function (request, status, error) {
+	        alert(request.responseText);
+	    }
+	});
+}
+</script>
