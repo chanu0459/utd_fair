@@ -12,11 +12,11 @@
 
 	<% @result.each do |proj| %>
 		<ul class="col-md-12 tbl_row">
-			<li class="col-md-3 tbl_row"> <%= "#{proj.title.presence || '-'}" %> </li>
-			<li class="col-md-2 tbl_row"> <%= "#{proj.date_added.strftime('%b %e %Y, %I:%M:%S %p')}" %> </li>
-			<li class="col-md-2 tbl_row"> <%= "#{proj.cname.presence || '-'}" %> </li>
-			<li class="col-md-3 tbl_row"> <%= "#{proj.uname}" %> </li>
-			<li class="col-md-2 tbl_row"> <%= "#{proj.description.presence || '-'}" %> </li>
+			<li class="col-md-3 "> <%= "#{proj.title.presence || '-'}" %> </li>
+			<li class="col-md-2 "> <%= "#{proj.date_added.strftime('%b %e %Y')}" %> </li>
+			<li class="col-md-2 "> <%= "#{proj.cname.presence || '-'}" %> </li>
+			<li class="col-md-3 "> <%= "#{proj.uname}" %> </li>
+			<li class="col-md-2 "> <%= "#{proj.description.presence || '-'}" %> </li>
 		</ul>
 	<% end %>
 
