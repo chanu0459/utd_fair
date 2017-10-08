@@ -1,6 +1,6 @@
 UtdFair::Application.routes.draw do
 
-  root :to => "sessions#home"
+  root :to => "projects#index"
 
   match "signup", :to => "users#new"
   match "login", :to => "sessions#login"

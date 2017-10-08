@@ -2,23 +2,26 @@ class Project < ActiveRecord::Base
   # attr_accessible :title, :body
   self.table_name = :ilance_projects
 
+  belongs_to :category, foreign_key: "cid"
+  belongs_to :user
+
   def self.report_all_data
-  	joins('left join ilance_users ilu on ilu.user_id = ilance_projects.user_id inner join ilance_categories ilc on ilc.cid = ilance_projects.cid').select('ilance_projects.project_title title, ilu.username uname, ilc.name cname, ilance_projects.date_added, ilance_projects.description, ilance_projects.date_starts, ilance_projects.date_end')
+    joins(:user).joins(:category).select('ilance_projects.project_title title, username uname, ilance_categories.name cname, ilance_projects.date_added, ilance_projects.description')
   end
 
-  def self.report_recent_projects
+  def self.recent_projects
   	report_all_data.order("date_added DESC")
   end
 
-  def self.report_cat_name_asc
+  def self.order_by_category_name_asc
   	report_all_data.order("cname ASC")
   end
 
-  def self.report_uname_asc
+  def self.order_by_username_asc
   	report_all_data.order("uname ASC")
   end
 
-  def self.report_project_title_asc
+  def self.order_by_project_title_asc
   	report_all_data.order("title ASC")
   end
 

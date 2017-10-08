@@ -1,10 +1,13 @@
 class ProjectsController < ApplicationController
   
   def index
-  	@order_hash = {1 => {'method_name' => 'report_recent_projects', 'name' => 'Recent Projects' }, 2 => { "method_name" => 'report_cat_name_asc' , "name" => "Order By Category Name ASC"}, 3 => {'method_name' => 'report_uname_asc', "name" => "Order By Username Asc"}, 4 => {'method_name' => 'report_project_title_asc', "name" => "Order By Project Title Asc"}}
-  	@selected_order = (params[:sort_method].present? && @order_hash.keys.include?(params[:sort_method].to_i)) ? params[:sort_method].to_i : 1
-  	@result = Project.send(@order_hash[@selected_order]['method_name'])
-  	# render :json => @result
+		@per_page = params[:per_page] || 2
+		@page = params[:page] || 0
+		@order_hash = ['Recent Projects', 'Order By Category Name ASC', 'Order By Username Asc', 'Order By Project Title Asc']
+  	@selected_order = (params[:sort_method].present? && @order_hash.include?(params[:sort_method])) ? params[:sort_method].parameterize.underscore : 'Recent Projects'.parameterize.underscore
+  	@result = Project.send(@selected_order)
+		@total_pages = @result.count / 2
+		@result = @result.limit(@per_page.to_i).offset( @per_page.to_i * @page.to_i)
   end
 
 end

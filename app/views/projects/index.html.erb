@@ -1,7 +1,4 @@
-<h1>Projects#index</h1>
-<p>Find me in app/views/projects/index.html.erb</p>
-
-<%= select_tag 'sort_method', options_for_select(@order_hash.map{ |k,v| [v["name"],k] },@selected_order), {onchange: "testMethod(value)", class: 'form-control', style: 'float:right; width:20%; margin-right:2%'}  %>
+<%= select_tag 'sort_method', options_for_select(@order_hash, params[:sort_method] || @order_hash[0] ), {onchange: "paginateDataFetch(value,#{0}, #{@per_page})", class: 'form-control', style: 'float:right; width:20%; margin-right:2%'}  %>
 
 <div id="projects_main">
 	<ul class="col-md-12 tbl_row">
@@ -27,58 +24,28 @@
 	<div id="page_navigation"></div>
 	<input type="hidden" name="current_page" id="current_page">
 	<input type="hidden" name="show_per_page" id="show_per_page">
+	<input type="hidden" name="total_pages" id="total_pages" value="<%= @total_pages%>">
 </div>
-
-<style type="text/css">
-	#projects_main{
-		margin: 2%;
-	}
-	ul.tbl_row{
-		padding-left: 0;
-		padding-right: 0;
-    	list-style: none;
-    	float: left;
-    	background-color: #f5f5f5;
-    	margin-bottom: 1%;
-    	margin-left: 2%
-    	width: 96%;
-    	border: 1px solid #FFFFFF;
-    	font-size: 16px;
-	}
-	ul.tbl_row>li{
-		float: left;
-		border-right: 1px solid #FFFFFF;
-	}
-
-	ul.pagination{
-		display:flex;  
-	  	list-style:none;
-	  	float: right;
-	}
-	.pagination li{
-		display: inline;
-		margin-right:5px;
-	}
-</style>
 
 <script type="text/javascript">
 	$(document).ready(function(){
-		customPagination();
+		customPagination(<%= @per_page %> , <%= @total_pages %>, <%= @page%>);
 });
 
-function customPagination(){
-  
+function customPagination(per_page, total_pages, page){
+
   // Items per Page
-  var show_per_page = 2; 
+  var show_per_page =  per_page; 
   
   // Total Length
-  var number_of_items = $('#content').children().size();
+  //var number_of_items = $('#content').children().length;
   
   // No. of pages 
-  var number_of_pages = Math.ceil(number_of_items/show_per_page);
+  //var number_of_pages = Math.ceil(number_of_items/show_per_page);
+  var number_of_pages = total_pages
 
   //set the value of our hidden input fields
-  $('#current_page').val(0);
+  $('#current_page').val(page);
   $('#show_per_page').val(show_per_page);
 
   var navigation_html = '<ul class="pagination">';
@@ -101,7 +68,7 @@ function customPagination(){
   $('#page_navigation').html(navigation_html);
 
   //add active class to the first page link
-  $('#page_navigation .page_link:first').addClass('active');
+  $('#page_navigation .page_link:nth-child('+ (page + 2) +')').addClass('active');
 
   //hide all the elements inside content div
   $('#content').children().css('display', 'none');
@@ -132,37 +99,36 @@ function next(){
 function go_to_page(page_num){
   // Items per Page to show
   var show_per_page = parseInt($('#show_per_page').val());
-
+  var sort_method = $("#sort_method").val()
+  paginateDataFetch(sort_method, page_num, show_per_page)
   //Get first element index to show
-  start_from = page_num * show_per_page;
+ // start_from = page_num * show_per_page;
 
   //Get the last element index
-  end_on = start_from + show_per_page;
+  //end_on = start_from + show_per_page;
 
-  activate_id = page_num;
-
-  var get_box = document.getElementById("id"+page_num);
+  //var get_box = document.getElementById("id"+page_num);
   //hide all children elements of content div, get specific items and show them
-  $('#content').children().css('display', 'none').slice(start_from, end_on).css('display', 'block');
+  //$('#content').children().css('display', 'none').slice(start_from, end_on).css('display', 'block');
 
-  $("#page_navigation").find('li.active').removeClass("active");
-  $(get_box).addClass("active");
+  //$("#page_navigation").find('li.active').removeClass("active");
+  //$(get_box).addClass("active");
 
 
   //update the current page input field
-  $('#current_page').val(page_num);
+  //$('#current_page').val(page_num);
 }
 
-function testMethod(id) {
+function paginateDataFetch(id,page,per_page) {
 	console.log(id);
 	 $.ajax({
-	 	url: "/projects?sort_method="+id, 
+	 	url: "/projects?sort_method="+id+"&per_page="+per_page+"&page="+page, 
 	 	success: function(response){
-	        console.log(response)
+	        //console.log(response)
 	        var success =  $($.parseHTML(response)).filter("#projects_main").html(); 
-			console.log(success); // div#success
+			var total_pages = $($.parseHTML(response)).find("#total_pages").val()
 	        $("#projects_main").html(success);
-	        customPagination();
+	        customPagination(per_page, total_pages, page);
 	    },
 		error: function (request, status, error) {
 	        alert(request.responseText);

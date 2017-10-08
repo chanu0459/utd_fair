@@ -1,7 +1,7 @@
 class User < ActiveRecord::Base
 	self.table_name = :ilance_users
 	before_save :encrypt_password
-
+	has_many :projects
   # attr_accessible :title, :body
   require 'digest/md5'
   attr_accessible :username, :email, :password, :password_confirmation
