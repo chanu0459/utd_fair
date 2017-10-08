@@ -159,7 +159,7 @@ function testMethod(id) {
 	 	url: "/projects?sort_method="+id, 
 	 	success: function(response){
 	        console.log(response)
-	        var success =  $($.parseHTML(response)).filter("#projects_main")[0]; 
+	        var success =  $($.parseHTML(response)).filter("#projects_main").html(); 
 			console.log(success); // div#success
 	        $("#projects_main").html(success);
 	        customPagination();
